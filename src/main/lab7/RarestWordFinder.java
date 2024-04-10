@@ -1,40 +1,41 @@
-package lab7;
+package main.lab7;
 
-import java.util.ArrayList;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.TreeMap;
 
 public class RarestWordFinder {
-  private String res;
+  private static final Map<String, Integer> wordsFrequency = new HashMap<>();
 
-  RarestWordFinder(String res){
-    this.res = res;
+  public static void processFile(String filePath) {
+    try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+      String line;
+      while ((line = reader.readLine()) != null) {
+        List<String> words = Arrays.asList(line.trim().split("\\s+"));
+        for (String word : words) {
+          wordsFrequency.put(word, wordsFrequency.getOrDefault(word, 0) + 1);
+        }
+      }
+    } catch (IOException e) {
+      System.err.println("Error reading file: " + e.getMessage());
+    }
   }
 
-  String findRarestWord(){
-    Map<String, Integer> wordsFrequence = new TreeMap<>();
-    ArrayList listOfStrings = splitBySpace(this.res);
+  public static String findRarestWord() {
+    String rarestWord = null;
+    int minFrequency = Integer.MAX_VALUE;
 
-
-    for(Object s : listOfStrings){
-      wordsFrequence.put(String.valueOf(s), wordsFrequence.getOrDefault(s, 0)+1);
-    }
-
-    String maxFreqWord = "";
-    int minCountWord = Integer.MAX_VALUE;
-    for(Map.Entry<String, Integer> map : wordsFrequence.entrySet()){
-      if(map.getValue() < minCountWord){
-        minCountWord = map.getValue();
-        maxFreqWord = map.getKey();
+    for (Map.Entry<String, Integer> entry : wordsFrequency.entrySet()) {
+      if (entry.getValue() < minFrequency) {
+        minFrequency = entry.getValue();
+        rarestWord = entry.getKey();
       }
     }
-    return maxFreqWord;
-  }
 
-  private ArrayList<String> splitBySpace(String s){
-    String[] resultListOfStrings = s.trim().split(" ");
-    return new ArrayList<>(Arrays.asList(resultListOfStrings));
+    return rarestWord != null ? rarestWord : "No words found";
   }
 }
